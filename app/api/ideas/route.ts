@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // ── GET /api/ideas?q=search_query ───────────────────────────────
 export async function GET(req: Request) {
