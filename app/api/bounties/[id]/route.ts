@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { vetBountySolution } from '@/lib/gemini'
 import { createClient } from '@/lib/supabase/server'
 
