@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
     try {
-        const store = await cookies()
-        const raw = store.get('local_session')?.value
-        if (!raw) return NextResponse.json({ balance: 0, loggedIn: false })
+        const supabase = await createClient()
+        const { data: { user } } = await supabase.auth.getUser()
 
-        const user = JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
+        if (!user) return NextResponse.json({ balance: 0, loggedIn: false })
 
         const admin = createAdminClient()
         const { data } = await admin

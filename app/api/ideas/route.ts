@@ -1,17 +1,5 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { vetContent, generateEmbedding } from '@/lib/gemini'
-
-// Read local session cookie
-async function getLocalUser() {
-    try {
-        const cookieStore = await cookies()
-        const raw = cookieStore.get('local_session')?.value
-        if (!raw) return null
-        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
-    } catch { return null }
-}
+import { createClient } from '@/lib/supabase/server'
 
 // ── GET /api/ideas?q=search_query ───────────────────────────────
 export async function GET(req: Request) {
@@ -45,7 +33,9 @@ export async function GET(req: Request) {
 // ── POST /api/ideas ─────────────────────────────────────────────
 export async function POST(req: Request) {
     try {
-        const user = await getLocalUser()
+        const supabase = await createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
         const body = await req.json()

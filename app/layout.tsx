@@ -13,28 +13,40 @@ export const metadata: Metadata = {
   description: "Buy, sell, and commission ideas, hacks, and solutions with 24-hour automated escrow.",
 };
 
-// Read cookie + fetch wallet balance from Supabase (server-side, no IPv6 issues)
-async function getLocalUser() {
+import { createClient } from "@/lib/supabase/server";
+
+// Fetch genuine Supabase user + wallet balance
+async function getNavigationUser() {
   try {
-    const cookieStore = await cookies();
-    const raw = cookieStore.get("local_session")?.value;
-    if (!raw) return null;
-    const user = JSON.parse(Buffer.from(raw, "base64").toString("utf8"));
-    // Fetch wallet balance via admin (bypasses RLS, no Supabase auth needed)
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return null;
+
+    // Fetch profile data (wallet, username, emoji)
     const admin = createAdminClient();
     const { data: profile } = await admin
       .from("profiles")
-      .select("wallet_balance")
+      .select("username, avatar_emoji, wallet_balance")
       .eq("id", user.id)
       .single();
-    return { ...user, wallet_balance: profile?.wallet_balance ?? 0 };
+
+    if (!profile) return null;
+
+    return {
+      id: user.id,
+      email: user.email,
+      username: profile.username,
+      avatar_emoji: profile.avatar_emoji,
+      wallet_balance: profile.wallet_balance
+    };
   } catch {
     return null;
   }
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const user = await getLocalUser();
+  const user = await getNavigationUser();
 
   return (
     <html lang="en" className="dark">

@@ -29,8 +29,15 @@ export async function signUp(formData: FormData) {
     redirect('/auth/check-email')
 }
 
+import { cookies } from 'next/headers'
+
 export async function signOut() {
     const supabase = await createClient()
     await supabase.auth.signOut()
+
+    // Clear out the stale development cookie if it exists
+    const cookieStore = await cookies()
+    cookieStore.delete('local_session')
+
     redirect('/')
 }

@@ -68,10 +68,11 @@ export default function SignupPage() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSignup} className="space-y-5">
+                    <form action={signUp} className="space-y-5">
                         {/* Avatar emoji picker */}
                         <div>
                             <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Your Avatar</label>
+                            <input type="hidden" name="avatar_emoji" value={form.emoji} />
                             <div className="flex gap-2 flex-wrap">
                                 {EMOJIS.map(e => (
                                     <button key={e} type="button" onClick={() => setForm({ ...form, emoji: e })}
@@ -84,28 +85,28 @@ export default function SignupPage() {
 
                         <div>
                             <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Username</label>
-                            <input name="username" required value={form.username} onChange={handleChange}
+                            <input name="username" required
                                 placeholder="NeuralHacker"
                                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
                             />
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Email</label>
-                            <input name="email" type="email" required value={form.email} onChange={handleChange}
+                            <input name="email" type="email" required
                                 placeholder="you@example.com"
                                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
                             />
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Password</label>
-                            <input name="password" type="password" required minLength={6} value={form.password} onChange={handleChange}
+                            <input name="password" type="password" required minLength={6}
                                 placeholder="6+ characters"
                                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
                             />
                         </div>
 
-                        <button type="submit" disabled={loading} className="btn-accent w-full flex justify-center items-center gap-2 mt-2">
-                            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : 'Create Account'}
+                        <button type="submit" className="btn-accent w-full flex justify-center items-center gap-2 mt-2">
+                            Create Account
                         </button>
                     </form>
 

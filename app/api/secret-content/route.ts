@@ -1,21 +1,13 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { createAdminClient } from '@/lib/supabase/admin'
-
-async function getLocalUser() {
-    try {
-        const store = await cookies()
-        const raw = store.get('local_session')?.value
-        if (!raw) return null
-        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
-    } catch { return null }
-}
+import { createClient } from '@/lib/supabase/server'
 
 // POST /api/secret-content
 // Body: { idea_id: string }
 export async function POST(req: Request) {
     try {
-        const user = await getLocalUser()
+        const supabase = await createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }

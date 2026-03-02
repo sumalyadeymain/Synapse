@@ -3,6 +3,7 @@ import { BrainCircuit } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { signIn } from "@/app/auth/actions";
 
 function LoginContent() {
     const searchParams = useSearchParams();
@@ -17,10 +18,8 @@ function LoginContent() {
                 </div>
             )}
 
-            {/* Plain HTML form — no JS fetch, server handles everything */}
-            <form method="POST" action="/api/auth/do-login" className="space-y-5">
-                <input type="hidden" name="redirect" value={redirect} />
-
+            {/* Server Action Form */}
+            <form action={signIn} className="space-y-5">
                 <div>
                     <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">
                         Email
@@ -30,7 +29,6 @@ function LoginContent() {
                         name="email"
                         required
                         autoComplete="email"
-                        defaultValue="sumalyadey1@gmail.com"
                         placeholder="you@example.com"
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
                     />

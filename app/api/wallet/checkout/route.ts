@@ -1,15 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { cookies } from 'next/headers'
-
-async function getLocalUser() {
-    try {
-        const store = await cookies()
-        const raw = store.get('local_session')?.value
-        if (!raw) return null
-        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
-    } catch { return null }
-}
+import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +15,9 @@ export async function POST(req: Request) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-02-24.acacia' as any })
 
     try {
-        const user = await getLocalUser()
+        const supabase = await createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
         const { amount } = await req.json()

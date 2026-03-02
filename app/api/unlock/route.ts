@@ -1,15 +1,5 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { createAdminClient } from '@/lib/supabase/admin'
-
-async function getLocalUser() {
-    try {
-        const store = await cookies()
-        const raw = store.get('local_session')?.value
-        if (!raw) return null
-        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
-    } catch { return null }
-}
+import { createClient } from '@/lib/supabase/server'
 
 // POST /api/unlock
 // Body: { idea_id: string }

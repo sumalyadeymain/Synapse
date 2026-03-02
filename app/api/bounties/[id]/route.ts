@@ -1,16 +1,7 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { vetBountySolution } from '@/lib/gemini'
-
-async function getLocalUser() {
-    try {
-        const store = await cookies()
-        const raw = store.get('local_session')?.value
-        if (!raw) return null
-        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
-    } catch { return null }
-}
+import { createClient } from '@/lib/supabase/server'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -40,7 +31,9 @@ export async function GET(_req: Request, { params }: Params) {
 // Body: { action: 'pitch'|'assign'|'submit'|'release'|'dispute', ...payload }
 export async function POST(req: Request, { params }: Params) {
     const { id } = await params
-    const user = await getLocalUser()
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
