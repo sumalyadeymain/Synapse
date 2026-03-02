@@ -1,0 +1,57 @@
+import { NextResponse } from 'next/server'
+import Stripe from 'stripe'
+import { cookies } from 'next/headers'
+
+async function getLocalUser() {
+    try {
+        const store = await cookies()
+        const raw = store.get('local_session')?.value
+        if (!raw) return null
+        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
+    } catch { return null }
+}
+
+export const dynamic = 'force-dynamic'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
+
+// POST /api/wallet/checkout
+// Body: { amount: number }  (amount in INR)
+export async function POST(req: Request) {
+    try {
+        const user = await getLocalUser()
+        if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+        const { amount } = await req.json()
+        const validAmounts = [100, 500, 1000, 2500, 5000]
+        if (!validAmounts.includes(Number(amount))) {
+            return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
+        }
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            line_items: [{
+                price_data: {
+                    currency: 'inr',
+                    product_data: {
+                        name: `Synapse Wallet — ₹${amount} Credits`,
+                        description: 'Used to unlock ideas and post bounties on Synapse',
+                    },
+                    unit_amount: amount * 100, // paise
+                },
+                quantity: 1,
+            }],
+            metadata: {
+                user_id: user.id,
+                credit_amount: amount.toString(),
+            },
+            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/wallet?success=true&amount=${amount}`,
+            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/wallet?cancelled=true`,
+        })
+
+        return NextResponse.json({ url: session.url })
+    } catch (err: any) {
+        return NextResponse.json({ error: err.message }, { status: 500 })
+    }
+}
