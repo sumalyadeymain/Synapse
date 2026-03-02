@@ -12,15 +12,15 @@ export async function GET() {
         const admin = createAdminClient()
         const { data } = await admin
             .from('profiles')
-            .select('wallet_balance')
+            .select('wallet_balance, username, avatar_emoji')
             .eq('id', user.id)
             .single()
 
         return NextResponse.json({
             loggedIn: true,
             balance: data?.wallet_balance ?? 0,
-            username: user.username,
-            avatar_emoji: user.avatar_emoji,
+            username: data?.username,
+            avatar_emoji: data?.avatar_emoji,
         })
     } catch {
         return NextResponse.json({ balance: 0, loggedIn: false })
