@@ -3,7 +3,8 @@
 
 export async function register() {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
-        require('node:dns').setDefaultResultOrder('ipv4first')
+        const dns = require('node:dns')
+        dns.setDefaultResultOrder('ipv4first')
 
         const { setGlobalDispatcher, Agent } = await import('undici')
         setGlobalDispatcher(new Agent({
