@@ -13,11 +13,16 @@ async function getLocalUser() {
 
 export const dynamic = 'force-dynamic'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
-
 // POST /api/wallet/checkout
 // Body: { amount: number }  (amount in INR)
 export async function POST(req: Request) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        console.error('Missing Stripe environment variables')
+        return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-02-24.acacia' as any })
+
     try {
         const user = await getLocalUser()
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
