@@ -234,6 +234,22 @@ export default function AdminUsersPage() {
                                                                 </div>
                                                                 <p className="text-[10px] text-white/30 mt-3 font-medium leading-relaxed">System has verified all P2P trades. No disputed funds found in recent cycles.</p>
                                                             </div>
+                                                        <div className="space-y-4 md:col-span-3 border-t border-white/10 pt-4 mt-2">
+                                                            <div className="flex justify-between items-center text-[10px] font-black uppercase text-brand-purple tracking-widest pb-2">
+                                                                <div className="flex items-center gap-2"><FileText className="w-3 h-3" /> User Content Management</div>
+                                                                <button 
+                                                                    onClick={() => handleAction(u.id, () => adminDeleteAllUserIdeas(u.id), `FORCE PURGE all ideas from ${u.username}?`)}
+                                                                    className="text-red-500 hover:text-red-400 bg-red-500/10 px-2 py-1 rounded transition-colors"
+                                                                >
+                                                                    Purge All Ideas
+                                                                </button>
+                                                            </div>
+                                                            <div className="bg-white/[0.02] rounded-xl border border-white/5 p-4 text-center">
+                                                                <p className="text-white/40 text-xs mb-3">To selectively delete content, use the central content moderation panel.</p>
+                                                                <a href="/admin/content" className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                                                                    <FileText className="w-4 h-4" /> Go to Content Moderation
+                                                                </a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </td>

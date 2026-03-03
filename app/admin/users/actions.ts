@@ -104,12 +104,33 @@ export async function adminDeleteAllUserIdeas(userId: string) {
     const admin = adminCheck.adminClient;
     if (!admin) return { error: "Unauthorized" };
 
-    const { error } = await admin
+    // First, find all ideas owned by this user
+    const { data: userIdeas, error: fetchError } = await admin
         .from('ideas')
-        .delete()
+        .select('id')
         .eq('seller_id', userId);
 
-    if (error) return { error: error.message };
+    if (fetchError) return { error: "Failed to fetch user ideas: " + fetchError.message };
+
+    if (userIdeas && userIdeas.length > 0) {
+        const ideaIds = userIdeas.map(idea => idea.id);
+
+        // Delete all trades associated with these ideas to prevent FK constraint violations
+        const { error: tradesError } = await admin
+            .from('trades')
+            .delete()
+            .in('idea_id', ideaIds);
+
+        if (tradesError) return { error: "Failed to delete associated trades: " + tradesError.message };
+
+        // Now it's safe to delete the ideas
+        const { error: ideasError } = await admin
+            .from('ideas')
+            .delete()
+            .in('id', ideaIds);
+
+        if (ideasError) return { error: "Failed to delete ideas: " + ideasError.message };
+    }
 
     revalidatePath('/admin/users');
     revalidatePath('/admin/content');
