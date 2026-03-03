@@ -71,6 +71,11 @@ export default function IdeaCard({ idea }: { idea: Idea }) {
     const timeAgo = new Date(idea.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     const isTeaserLong = idea.teaser_text.length > 120;
 
+    const truncate = (str: string, length: number) => {
+        if (!str) return "";
+        return str.length > length ? str.slice(0, length) + ".." : str;
+    };
+
     return (
         <div className="glass-card glass-card-hover flex flex-col gap-5 relative overflow-hidden group">
             {/* Shimmer effect on hover */}
@@ -80,8 +85,8 @@ export default function IdeaCard({ idea }: { idea: Idea }) {
             <div className="flex items-center justify-between gap-2 relative z-10">
                 <div className="flex flex-wrap gap-2">
                     {idea.category_tags?.slice(0, 2).map(tag => (
-                        <span key={tag} className="text-[10px] bg-white/[0.05] text-white/60 border border-white/10 px-2.5 py-1 rounded-lg font-bold tracking-tight uppercase">
-                            {tag}
+                        <span key={tag} className="text-[10px] bg-white/[0.05] text-white/60 border border-white/10 px-2.5 py-1 rounded-lg font-bold tracking-tight uppercase whitespace-nowrap">
+                            {truncate(tag, 10)}
                         </span>
                     ))}
                     {idea.category_tags?.length > 2 && (
@@ -97,7 +102,7 @@ export default function IdeaCard({ idea }: { idea: Idea }) {
             {/* Title & Price */}
             <div className="space-y-2 relative z-10">
                 <div className="flex items-start justify-between gap-4">
-                    <h3 className="font-bold text-lg text-white leading-snug group-hover:text-brand-blue transition-colors">
+                    <h3 className="font-bold text-lg text-white leading-snug group-hover:text-brand-blue transition-colors line-clamp-2">
                         {idea.title}
                     </h3>
                     <div className="text-right shrink-0">
