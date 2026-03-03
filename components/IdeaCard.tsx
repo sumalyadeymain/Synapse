@@ -66,8 +66,10 @@ export default function IdeaCard({ idea }: { idea: Idea }) {
         setLoading(false);
     };
 
+    const [isExpanded, setIsExpanded] = useState(false);
     const seller = idea.profiles;
     const timeAgo = new Date(idea.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const isTeaserLong = idea.teaser_text.length > 120;
 
     return (
         <div className="glass-card glass-card-hover flex flex-col gap-5 relative overflow-hidden group">
@@ -102,9 +104,19 @@ export default function IdeaCard({ idea }: { idea: Idea }) {
                         <p className="text-2xl font-mono font-extrabold text-brand-green leading-none">₹{idea.price}</p>
                     </div>
                 </div>
-                <p className="text-sm text-white/50 leading-relaxed line-clamp-2">
-                    {idea.teaser_text}
-                </p>
+                <div className="relative">
+                    <p className={`text-sm text-white/50 leading-relaxed ${!isExpanded && isTeaserLong ? "line-clamp-3" : ""}`}>
+                        {idea.teaser_text}
+                    </p>
+                    {isTeaserLong && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
+                            className="text-[10px] font-bold text-brand-blue uppercase mt-1 hover:underline cursor-pointer"
+                        >
+                            {isExpanded ? "Read less" : "Read more"}
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Stats Bar */}
