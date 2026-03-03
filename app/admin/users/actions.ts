@@ -36,6 +36,7 @@ export async function adminDeleteUser(userId: string) {
     if (!adminCheck.authorized) return { error: adminCheck.error };
 
     const admin = adminCheck.adminClient;
+    if (!admin) return { error: "Unauthorized" };
 
     // 1. Delete user profile (cascades to their ideas/trades usually, but we should be explicit if needed)
     // Note: Profiles table might have FKs from ideas. Let's delete content first.
@@ -64,7 +65,10 @@ export async function adminSendResetPassword(email: string) {
     const adminCheck = await ensureAdmin();
     if (!adminCheck.authorized) return { error: adminCheck.error };
 
-    const { error } = await adminCheck.adminClient.auth.admin.generateLink({
+    const admin = adminCheck.adminClient;
+    if (!admin) return { error: "Unauthorized" };
+
+    const { error } = await admin.auth.admin.generateLink({
         type: 'recovery',
         email: email,
     });
@@ -77,7 +81,7 @@ export async function adminSendResetPassword(email: string) {
     // Actually, resetPasswordForEmail is not in admin.auth.admin. 
     // We'll use generateLink or just rely on the user triggering it, but since the user asked for "send recovery link":
 
-    const { data, error: sendError } = await adminCheck.adminClient.auth.admin.generateLink({
+    const { data, error: sendError } = await admin.auth.admin.generateLink({
         type: 'recovery',
         email: email,
         options: {
@@ -97,7 +101,10 @@ export async function adminDeleteAllUserIdeas(userId: string) {
     const adminCheck = await ensureAdmin();
     if (!adminCheck.authorized) return { error: adminCheck.error };
 
-    const { error } = await adminCheck.adminClient
+    const admin = adminCheck.adminClient;
+    if (!admin) return { error: "Unauthorized" };
+
+    const { error } = await admin
         .from('ideas')
         .delete()
         .eq('seller_id', userId);
@@ -117,7 +124,10 @@ export async function adminAdjustBalance(userId: string, newBalance: number) {
     const adminCheck = await ensureAdmin();
     if (!adminCheck.authorized) return { error: adminCheck.error };
 
-    const { error } = await adminCheck.adminClient
+    const admin = adminCheck.adminClient;
+    if (!admin) return { error: "Unauthorized" };
+
+    const { error } = await admin
         .from('profiles')
         .update({ wallet_balance: newBalance })
         .eq('id', userId);
