@@ -39,13 +39,11 @@ export async function GET() {
             adminProfile = data
         }
 
-        // 3. Search for Sumalya profile by name (Admin)
-        const { data: sumalyaByName } = await admin
-            .from('profiles')
-            .select('*')
-            .ilike('username', '%Sumalya%')
-            .limit(1)
-            .maybeSingle()
+        // 3. List some ideas to show owner IDs
+        const { data: ideas } = await admin
+            .from('ideas')
+            .select('id, title, seller_id, price')
+            .limit(5)
 
         return NextResponse.json({
             status: 'ok',
@@ -68,11 +66,13 @@ export async function GET() {
                     balance: adminProfile.wallet_balance
                 } : null
             },
-            sumalyaByName: sumalyaByName ? {
-                id: sumalyaByName.id,
-                username: sumalyaByName.username,
-                balance: sumalyaByName.wallet_balance
-            } : null
+            ideasSample: ideas?.map(i => ({
+                id: i.id,
+                title: i.title,
+                seller_id: i.seller_id,
+                is_mine: user ? i.seller_id === user.id : false,
+                price: i.price
+            }))
         })
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 })
