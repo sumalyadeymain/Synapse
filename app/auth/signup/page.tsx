@@ -19,9 +19,6 @@ export default function SignupPage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-        setForm({ ...form, [e.target.name]: e.target.value });
-
     return (
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
             <div className="w-full max-w-md space-y-8">
