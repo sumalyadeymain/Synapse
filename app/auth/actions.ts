@@ -10,7 +10,7 @@ export async function signIn(formData: FormData) {
     const redirectTo = formData.get('redirectTo') as string || '/discover'
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return { error: error.message }
+    if (error) redirect(`/auth/login?error=bad_credentials`)
     redirect(redirectTo)
 }
 
@@ -25,7 +25,7 @@ export async function signUp(formData: FormData) {
         email, password,
         options: { data: { username, avatar_emoji: avatar_emoji || '🧠' } }
     })
-    if (error) return { error: error.message }
+    if (error) redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`)
     redirect('/auth/check-email')
 }
 
