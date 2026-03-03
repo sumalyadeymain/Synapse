@@ -1,5 +1,5 @@
 "use client";
-
+// Trigger Vercel build: 2026-03-04
 import { useEffect, useState } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { User, ShieldCheck, ShieldAlert, IndianRupee, Trash2, Mail, FileText, ChevronDown, ChevronUp, AlertCircle, RefreshCw } from "lucide-react";
