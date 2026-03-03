@@ -1,4 +1,3 @@
-
 // POST /api/secret-content
 // Body: { idea_id: string }
 export async function POST(req: Request) {
