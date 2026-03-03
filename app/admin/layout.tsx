@@ -11,13 +11,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         redirect('/auth/login?redirect=/admin');
     }
 
+    // Fetch profile and check admin status with email fallback
     const { data: profile } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', user.id)
         .single();
 
-    if (!profile?.is_admin) {
+    const isAdmin = profile?.is_admin || user.email === 'sumalyadey1@gmail.com';
+
+    if (!isAdmin) {
         // Not an admin, redirect to home
         redirect('/');
     }
@@ -30,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                     <ShieldCheck className="w-6 h-6" />
                     <span>Admin Panel</span>
                 </div>
-                
+
                 <nav className="flex flex-col gap-2 flex-1">
                     <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/[0.05] transition-colors text-white/70 hover:text-white font-medium">
                         <LayoutDashboard className="w-5 h-5" /> Dashboard
@@ -61,7 +64,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                         <Menu className="w-6 h-6" />
                     </button>
                 </header>
-                
+
                 <div className="p-6 md:p-12 max-w-6xl mx-auto space-y-8">
                     {children}
                 </div>

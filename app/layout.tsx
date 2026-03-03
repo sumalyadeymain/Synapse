@@ -26,15 +26,27 @@ async function getNavigationUser() {
 
     if (!user) return null;
 
-    // Fetch profile data (wallet, username, emoji, admin status)
+    // Fetch profile data (wallet, username, emoji)
+    // We fetch is_admin separately or check for its existence to avoid crashing if the column doesn't exist yet
     const admin = createAdminClient();
-    const { data: profile } = await admin
+    const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select("username, avatar_emoji, wallet_balance, is_admin")
+      .select("username, avatar_emoji, wallet_balance") // Removed is_admin from here to prevent crash
       .eq("id", user.id)
       .single();
 
-    if (!profile) return null;
+    if (profileError || !profile) return {
+      id: user.id,
+      email: user.email,
+      is_admin: user.email === 'sumalyadey1@gmail.com' // Fallback admin check
+    };
+
+    // Attempt to see if is_admin is true in DB, but fallback to email check
+    const { data: adminData } = await admin
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single();
 
     return {
       id: user.id,
@@ -42,9 +54,10 @@ async function getNavigationUser() {
       username: profile.username,
       avatar_emoji: profile.avatar_emoji,
       wallet_balance: profile.wallet_balance,
-      is_admin: profile.is_admin
+      is_admin: adminData?.is_admin || user.email === 'sumalyadey1@gmail.com'
     };
-  } catch {
+  } catch (err) {
+    console.error("Navigation fetch error:", err);
     return null;
   }
 }
