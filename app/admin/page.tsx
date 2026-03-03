@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Users, FileText, IndianRupee } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
     const { count: ideaCount } = await supabase.from('ideas').select('*', { count: 'exact', head: true });

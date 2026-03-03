@@ -1,16 +1,23 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { User, ShieldCheck, ShieldAlert, IndianRupee } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminUsersPage() {
-    const supabase = await createClient();
+    const supabase = createAdminClient(); // Use admin client to bypass RLS
 
-    // Fetch all profiles
+    // Fetch all profiles - select specific columns to avoid crash if is_admin is missing
     const { data: users, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, username, avatar_emoji, wallet_balance, created_at') // omit is_admin for now
         .order('created_at', { ascending: false });
+
+    // Optional: Try to fetch is_admin separately to see if it exists
+    const { data: adminCheck } = await supabase.from('profiles').select('is_admin').limit(1);
+    const hasAdminColumn = adminCheck !== null;
+
+    // If column exists, we can re-fetch with it or just map it if we really need it
+    // For now, let's just make it work with what we have.
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -56,7 +63,7 @@ export default async function AdminUsersPage() {
                                             <IndianRupee className="w-3 h-3" /> {u.wallet_balance}
                                         </td>
                                         <td className="p-4">
-                                            {u.is_admin ? (
+                                            {u.is_admin || u.email === 'sumalyadey1@gmail.com' ? (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand-blue/20 text-brand-blue uppercase tracking-tighter">
                                                     <ShieldCheck className="w-3 h-3" /> Admin
                                                 </span>
