@@ -9,7 +9,7 @@ export default async function AdminUsersPage() {
     // Fetch all profiles - select specific columns to avoid crash if is_admin is missing
     const { data: users, error } = await supabase
         .from('profiles')
-        .select('id, username, avatar_emoji, wallet_balance, created_at') // omit is_admin for now
+        .select('id, username, avatar_emoji, wallet_balance, created_at, iq_score, email') // include missing fields
         .order('created_at', { ascending: false });
 
     // Optional: Try to fetch is_admin separately to see if it exists
@@ -46,7 +46,7 @@ export default async function AdminUsersPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {users?.map((u) => (
+                                {users?.map((u: any) => (
                                     <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
