@@ -5,7 +5,7 @@ import "./globals.css";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { BrainCircuit, LayoutDashboard, Compass, Target, LogIn, LogOut, Wallet, PlusCircle } from "lucide-react";
+import { BrainCircuit, LayoutDashboard, Compass, Target, LogIn, LogOut, Wallet, PlusCircle, ShieldCheck } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -26,11 +26,11 @@ async function getNavigationUser() {
 
     if (!user) return null;
 
-    // Fetch profile data (wallet, username, emoji)
+    // Fetch profile data (wallet, username, emoji, admin status)
     const admin = createAdminClient();
     const { data: profile } = await admin
       .from("profiles")
-      .select("username, avatar_emoji, wallet_balance")
+      .select("username, avatar_emoji, wallet_balance, is_admin")
       .eq("id", user.id)
       .single();
 
@@ -41,7 +41,8 @@ async function getNavigationUser() {
       email: user.email,
       username: profile.username,
       avatar_emoji: profile.avatar_emoji,
-      wallet_balance: profile.wallet_balance
+      wallet_balance: profile.wallet_balance,
+      is_admin: profile.is_admin
     };
   } catch {
     return null;
@@ -80,6 +81,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {user && (
                 <Link href="/dashboard/seller" className="nav-link flex items-center gap-1.5">
                   <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
+                </Link>
+              )}
+              {user?.is_admin && (
+                <Link href="/admin" className="nav-link flex items-center gap-1.5 text-brand-blue font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Admin
                 </Link>
               )}
             </div>
