@@ -9,7 +9,7 @@ export default async function AdminUsersPage() {
     // Fetch all profiles - select specific columns to avoid crash if is_admin is missing
     const { data: users, error } = await supabase
         .from('profiles')
-        .select('id, username, avatar_emoji, wallet_balance, created_at, iq_score, email') // include missing fields
+        .select('id, username, avatar_emoji, wallet_balance, created_at, iq_score') // removed email
         .order('created_at', { ascending: false });
 
     // Optional: Try to fetch is_admin separately to see if it exists
@@ -63,7 +63,7 @@ export default async function AdminUsersPage() {
                                             <IndianRupee className="w-3 h-3" /> {u.wallet_balance}
                                         </td>
                                         <td className="p-4">
-                                            {u.is_admin || u.email === 'sumalyadey1@gmail.com' ? (
+                                            {u.is_admin || u.username === 'Sumalya' ? (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand-blue/20 text-brand-blue uppercase tracking-tighter">
                                                     <ShieldCheck className="w-3 h-3" /> Admin
                                                 </span>
