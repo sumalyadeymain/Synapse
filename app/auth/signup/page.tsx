@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrainCircuit, Loader2, AlertCircle } from "lucide-react";
+import { signUp } from "@/app/auth/actions";
 
 export const dynamic = "force-dynamic";
 
