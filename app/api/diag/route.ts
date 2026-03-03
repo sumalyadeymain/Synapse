@@ -31,8 +31,8 @@ export async function GET(req: Request) {
             return NextResponse.redirect(new URL('/api/diag', req.url))
         }
 
-        let authProfile = null
-        let rlsError = null
+        let authProfile: any = null
+        let rlsError: string | null = null
 
         if (user) {
             const { data, error } = await supabase
@@ -41,11 +41,11 @@ export async function GET(req: Request) {
                 .eq('id', user.id)
                 .single()
             authProfile = data
-            rlsError = error?.message
+            rlsError = error?.message || null
         }
 
         // 2. Check as Admin (bypasses RLS)
-        let adminProfile = null
+        let adminProfile: any = null
         if (user) {
             const { data } = await admin
                 .from('profiles')
@@ -62,7 +62,7 @@ export async function GET(req: Request) {
             .limit(10)
 
         // 4. List trades for current user
-        let myTrades = []
+        let myTrades: any[] = []
         if (user) {
             const { data } = await admin
                 .from('trades')
