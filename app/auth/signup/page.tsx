@@ -19,39 +19,8 @@ export default function SignupPage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleSignup = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(""); setLoading(true);
-
-        try {
-            // Raw HTTP POST directly to our own Node.js server
-            const response = await fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: form.email,
-                    password: form.password,
-                    username: form.username,
-                    avatar_emoji: form.emoji
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.error || "Failed to create account.");
-                setLoading(false);
-                return;
-            }
-
-            // Success! Route them to check-email
-            router.push('/auth/check-email');
-        } catch (err: any) {
-            console.error("Signup catch:", err);
-            setError(err.name === 'TypeError' ? "Network Error: Reconnecting to dev server" : err.message);
-            setLoading(false);
-        }
-    };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm({ ...form, [e.target.name]: e.target.value });
 
     return (
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
