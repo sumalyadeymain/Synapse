@@ -42,6 +42,7 @@ export async function middleware(request: NextRequest) {
         const isProtected = protectedRoutes.some(path => request.nextUrl.pathname.startsWith(path))
 
         if (isProtected && !user) {
+            console.log(`Middleware: Redirecting protected route ${request.nextUrl.pathname} to login (no user detected)`)
             const url = request.nextUrl.clone()
             url.pathname = '/auth/login'
             url.searchParams.set('redirect', request.nextUrl.pathname)

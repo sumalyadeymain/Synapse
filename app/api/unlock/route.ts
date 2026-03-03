@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 
-// POST /api/unlock
-// Body: { idea_id: string }
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: Request) {
     try {
         const supabase = await createClient()
@@ -42,24 +42,31 @@ export async function POST(req: Request) {
             .select('wallet_balance').eq('id', user.id).single()
 
         if (profileErr) {
+            console.error('Unlock: buyer profile fetch error:', profileErr.message)
             return NextResponse.json({ error: `DB error: ${profileErr.message}` }, { status: 500 })
         }
-        if (!buyerProfile || Number(buyerProfile.wallet_balance) < idea.price) {
+
+        const currentBalance = Number(buyerProfile.wallet_balance || 0)
+        const price = Number(idea.price)
+
+        if (!buyerProfile || currentBalance < price) {
             return NextResponse.json({
-                error: `Insufficient balance. Need ₹${idea.price}, you have ₹${buyerProfile?.wallet_balance ?? 0}`
+                error: `Insufficient balance. Need ₹${price}, you have ₹${currentBalance}`
             }, { status: 402 })
         }
 
-        const platformFee = +(idea.price * 0.15).toFixed(2)
-        const sellerPayout = +(idea.price * 0.85).toFixed(2)
+        const platformFee = +(price * 0.15).toFixed(2)
+        const sellerPayout = +(price * 0.85).toFixed(2)
         const releaseAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
         // Deduct wallet
+        const nextBalance = currentBalance - price
         const { error: deductErr } = await admin.from('profiles')
-            .update({ wallet_balance: Number(buyerProfile.wallet_balance) - idea.price })
+            .update({ wallet_balance: nextBalance })
             .eq('id', user.id)
 
         if (deductErr) {
+            console.error('Unlock: deduction failed:', deductErr.message)
             return NextResponse.json({ error: `Deduction failed: ${deductErr.message}` }, { status: 500 })
         }
 
@@ -68,7 +75,7 @@ export async function POST(req: Request) {
             buyer_id: user.id,
             seller_id: idea.seller_id,
             idea_id,
-            amount: idea.price,
+            amount: price,
             platform_fee: platformFee,
             seller_payout: sellerPayout,
             status: 'PENDING',
@@ -76,15 +83,18 @@ export async function POST(req: Request) {
         }).select('id').single()
 
         if (tradeErr) {
-            console.error('Trade insert error:', tradeErr.message)
-            // Deduction happened — but log it. Don't block the user.
+            console.error('Unlock: trade insert error:', tradeErr.message)
+            // Deduction happened — but log it.
         }
+
+        console.log(`Unlock SUCCESS: User ${user.email} unlocked ${idea_id}. Deducted ${price}. Next balance: ${nextBalance}`)
 
         return NextResponse.json({
             success: true,
             trade_id: trade?.id,
             release_at: releaseAt,
-            deducted: idea.price,
+            deducted: price,
+            new_balance: nextBalance
         })
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 })

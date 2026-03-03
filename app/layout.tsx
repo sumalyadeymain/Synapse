@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 // Fetch genuine Supabase user + wallet balance
 async function getNavigationUser() {
   try {
