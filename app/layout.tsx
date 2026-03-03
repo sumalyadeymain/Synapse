@@ -1,3 +1,4 @@
+import { signOut } from '@/app/auth/actions';
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -104,8 +105,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     <button className="btn-accent py-2 px-4 text-xs font-bold">+ Post Idea</button>
                   </Link>
 
-                  {/* Sign out — clears local cookie */}
-                  <form method="POST" action="/api/auth/do-logout">
+                  {/* Sign out */}
+                  <form action={signOut}>
                     <button type="submit" className="btn-glass !py-1.5 !px-3 text-xs flex items-center gap-1.5">
                       <LogOut className="w-3.5 h-3.5" />
                     </button>
