@@ -1,24 +1,81 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { BrainCircuit, Loader2, AlertCircle } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { BrainCircuit, AlertCircle } from "lucide-react";
 import { signUp } from "@/app/auth/actions";
 
 export const dynamic = "force-dynamic";
 
-export default function SignupPage() {
-    const router = useRouter();
-    const [form, setForm] = useState({ email: "", password: "", username: "", emoji: "🧠" });
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+function SignupContent() {
+    const searchParams = useSearchParams();
+    const errorFromUrl = searchParams.get("error");
+    const [form, setForm] = useState({ emoji: "🧠" });
 
     const EMOJIS = ["🧠", "⚡", "🔐", "🏗️", "🚀", "🎯", "💡", "🔮"];
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-        setForm({ ...form, [e.target.name]: e.target.value });
+    return (
+        <div className="glass-card !p-8 space-y-6 glow-blue">
+            {errorFromUrl && (
+                <div className="flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4 shrink-0" /> {errorFromUrl}
+                </div>
+            )}
 
+            <form action={signUp} className="space-y-5">
+                {/* Avatar emoji picker */}
+                <div>
+                    <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Your Avatar</label>
+                    <input type="hidden" name="avatar_emoji" value={form.emoji} />
+                    <div className="flex gap-2 flex-wrap">
+                        {EMOJIS.map(e => (
+                            <button key={e} type="button" onClick={() => setForm({ ...form, emoji: e })}
+                                className={`text-2xl w-10 h-10 rounded-xl border transition-all ${form.emoji === e ? 'border-brand-blue bg-brand-blue/20 scale-110' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
+                                {e}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Username</label>
+                    <input name="username" required
+                        placeholder="NeuralHacker"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Email</label>
+                    <input name="email" type="email" required
+                        placeholder="you@example.com"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Password</label>
+                    <input name="password" type="password" required minLength={6}
+                        placeholder="6+ characters"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
+                    />
+                </div>
+
+                <button type="submit" className="btn-accent w-full flex justify-center items-center gap-2 mt-2">
+                    Create Account
+                </button>
+            </form>
+
+            <div className="border-t border-white/[0.06] pt-5 text-center text-sm text-white/40">
+                Already have an account?{" "}
+                <Link href="/auth/login" className="text-brand-blue hover:text-brand-green transition-colors font-semibold">
+                    Sign In →
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+export default function SignupPage() {
     return (
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
             <div className="w-full max-w-md space-y-8">
@@ -28,63 +85,11 @@ export default function SignupPage() {
                     <p className="text-white/50 text-sm">Create your account and start earning</p>
                 </div>
 
-                <div className="glass-card !p-8 space-y-6 glow-blue">
-                    {error && (
-                        <div className="flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
-                            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
-                        </div>
-                    )}
-
-                    <form action={signUp} className="space-y-5">
-                        {/* Avatar emoji picker */}
-                        <div>
-                            <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Your Avatar</label>
-                            <input type="hidden" name="avatar_emoji" value={form.emoji} />
-                            <div className="flex gap-2 flex-wrap">
-                                {EMOJIS.map(e => (
-                                    <button key={e} type="button" onClick={() => setForm({ ...form, emoji: e })}
-                                        className={`text-2xl w-10 h-10 rounded-xl border transition-all ${form.emoji === e ? 'border-brand-blue bg-brand-blue/20 scale-110' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
-                                        {e}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Username</label>
-                            <input name="username" required
-                                placeholder="NeuralHacker"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Email</label>
-                            <input name="email" type="email" required
-                                placeholder="you@example.com"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-white/60 mb-2 uppercase tracking-wider">Password</label>
-                            <input name="password" type="password" required minLength={6}
-                                placeholder="6+ characters"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-brand-blue focus:outline-none transition-colors"
-                            />
-                        </div>
-
-                        <button type="submit" className="btn-accent w-full flex justify-center items-center gap-2 mt-2">
-                            Create Account
-                        </button>
-                    </form>
-
-                    <div className="border-t border-white/[0.06] pt-5 text-center text-sm text-white/40">
-                        Already have an account?{" "}
-                        <Link href="/auth/login" className="text-brand-blue hover:text-brand-green transition-colors font-semibold">
-                            Sign In →
-                        </Link>
-                    </div>
-                </div>
+                <Suspense fallback={<div className="glass-card !p-8 text-center text-white/40 text-sm">Loading…</div>}>
+                    <SignupContent />
+                </Suspense>
             </div>
         </div>
     );
 }
+
