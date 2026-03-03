@@ -6,17 +6,14 @@ import { Wallet, Clock, CheckCircle, TrendingUp, Plus, Package } from "lucide-re
 
 export const dynamic = "force-dynamic";
 
-async function getLocalUser() {
-    try {
-        const store = await cookies();
-        const raw = store.get('local_session')?.value;
-        if (!raw) return null;
-        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
-    } catch { return null; }
-}
+import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export default async function SellerDashboard() {
-    const user = await getLocalUser();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     if (!user) redirect("/auth/login?redirect=/dashboard/seller");
 
     const admin = createAdminClient();

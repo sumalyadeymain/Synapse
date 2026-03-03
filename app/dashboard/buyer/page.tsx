@@ -5,17 +5,12 @@ import Link from "next/link";
 import { AlertCircle, Clock, ShoppingBag } from "lucide-react";
 import { redirect } from "next/navigation";
 
-async function getLocalUser() {
-    try {
-        const store = await cookies();
-        const raw = store.get('local_session')?.value;
-        if (!raw) return null;
-        return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
-    } catch { return null; }
-}
+import { createClient } from "@/lib/supabase/server";
 
 export default async function BuyerDashboard() {
-    const user = await getLocalUser();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     if (!user) redirect("/auth/login?redirect=/dashboard/buyer");
 
     const admin = createAdminClient();
